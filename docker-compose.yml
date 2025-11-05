@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: aif-csp-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aifcsp
+      POSTGRES_PASSWORD: aifcsp_password
+      POSTGRES_DB: aif_csp
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aif-csp-network
+
+  # Backend Node.js
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aif-csp-backend
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://aifcsp:aifcsp_password@postgres:5432/aif_csp?schema=public
+      JWT_SECRET: votre_secret_jwt_production_a_changer
+      PORT: 3000
+      CORS_ORIGIN: http://localhost:3001
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - aif-csp-network
+    command: sh -c "npx prisma migrate deploy && npm start"
+
+  # Frontend React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aif-csp-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3001:80"
+    networks:
+      - aif-csp-network
+
+volumes:
+  postgres_data:
+
+networks:
+  aif-csp-network:
+    driver: bridge

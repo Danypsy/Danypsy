@@ -1,0 +1,524 @@
+// Schéma de base de données pour l'application AIF-CSP
+// Générateur Prisma Client pour TypeScript
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Énumération des rôles utilisateurs
+enum Role {
+  CONSULTANT      // Consultant CSP qui monte les dossiers
+  CANDIDAT        // Bénéficiaire CSP
+  COORDINATEUR    // Coordinateur régional
+  ADMIN           // Administrateur système
+}
+
+// Énumération des régions France
+enum Region {
+  AUVERGNE_RHONE_ALPES
+  BOURGOGNE_FRANCHE_COMTE
+  BRETAGNE
+  CENTRE_VAL_DE_LOIRE
+  CORSE
+  GRAND_EST
+  HAUTS_DE_FRANCE
+  ILE_DE_FRANCE
+  NORMANDIE
+  NOUVELLE_AQUITAINE
+  OCCITANIE
+  PAYS_DE_LA_LOIRE
+  PROVENCE_ALPES_COTE_AZUR
+}
+
+// Énumération des statuts de dossier
+enum StatutDossier {
+  BROUILLON                  // Dossier en cours de création
+  EN_VALIDATION_DEVIS        // En attente validation devis par candidat (J-28)
+  CONSTITUTION_DOCUMENTS     // Collecte des documents (J-23)
+  INTEGRATION_PRESTAPPLI     // Intégration dans Prest@ppli (J-20)
+  PRE_TRANSMISSION          // Checklist 25 points en cours (J-14)
+  TRANSMIS                  // Transmis au gestionnaire (J-7)
+  EN_ATTENTE_GESTIONNAIRE   // En attente réponse gestionnaire
+  DEMANDE_COMPLEMENT        // Gestionnaire demande des compléments
+  ACCEPTE                   // Dossier accepté
+  REJETE                    // Dossier rejeté
+  ANNULE                    // Dossier annulé
+}
+
+// Énumération des checkpoints du workflow
+enum CheckpointType {
+  ELIGIBILITE_AIF           // J-30: Vérification éligibilité
+  VALIDATION_DEVIS          // J-28: Validation devis candidat
+  CONSTITUTION_DOSSIER      // J-23: Documents complets
+  INTEGRATION_SYSTEM        // J-20: Devis visible Prest@ppli
+  REMPLISSAGE_FORM          // J-19: Formulaire Prest@ppli
+  PRE_TRANSMISSION          // J-14: Checklist 25 points
+  TRANSMISSION              // J-7: Transmission gestionnaire
+  SUIVI_GESTIONNAIRE        // J-9 à J+6: Attente réponse
+}
+
+// Énumération des motifs AIF
+enum MotifAIF {
+  CPF_INSUFFISANT           // CPF ne couvre pas le coût
+  ABONDEMENT_SUPERIEUR_1000 // Abondement > 1000€
+  INCOMPATIBILITE_CPF       // Certification non compatible CPF
+  URGENCE_HANDICAP          // Urgence liée à handicap
+  SECTEUR_DECLINANT         // Reconversion secteur en déclin
+  AUTRE                     // Autre motif
+}
+
+// Énumération des types de rejet
+enum TypeRejet {
+  DOCUMENTATION_INSUFFISANTE
+  ARGUMENTAIRE_VAGUE
+  ETAPES_VALIDATION_FLOUES
+  DATES_INCOHERENTES
+  ID_FRANCE_TRAVAIL_INCORRECT
+  FORMATION_NON_ELIGIBLE
+  PSP_NON_ALIGNE
+  AUTRE
+}
+
+// Modèle User - Utilisateurs du système
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String   // Hash bcrypt
+  nom           String
+  prenom        String
+  role          Role     @default(CONSULTANT)
+  region        Region?  // Pour consultants et coordinateurs
+  telephone     String?
+  isActive      Boolean  @default(true)
+
+  // Relations
+  dossiersConsultant  Dossier[]   @relation("ConsultantDossiers")
+  candidat            Candidat?   // 1-to-1 si role = CANDIDAT
+  notifications       Notification[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// Modèle Candidat - Bénéficiaires CSP
+model Candidat {
+  id                    String   @id @default(cuid())
+  userId                String   @unique
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Informations personnelles
+  nomNaissance          String?
+  dateNaissance         DateTime
+  lieuNaissance         String?
+  nationalite           String   @default("Française")
+  sexe                  String   // M ou F
+
+  // Pièce d'identité
+  typePieceIdentite     String   // CNI, Passeport, Permis
+  numeroPieceIdentite   String
+
+  // Adresse
+  adresse               String
+  codePostal            String
+  ville                 String
+
+  // Identifiants France Travail
+  idFranceTravail       String   @unique // 10 chiffres
+  numeroCommandeLPR     String?  // Format SMLPRZ0054
+
+  // Statut CSP
+  dateDebutCSP          DateTime
+  dateFinCSP            DateTime
+  motifCSP              String   // Licenciement économique, fin CDD, etc.
+
+  // Situation professionnelle
+  dernierEmploi         String?
+  codeROMEOrigine       String?  // Ex: A1401
+  secteurActivite       String?
+  ancienneteEmploi      Int?     // en mois
+
+  // Situations spéciales
+  handicapReconnu       Boolean  @default(false)
+  allocationMinimaSocial Boolean @default(false)
+  situationLogement     String?  // stable, SDF, risque exclusion
+
+  // Qualification
+  niveauQualification   String   // Bac+5, Bac+3, Bac, Inférieur bac
+
+  // CPF
+  soldeCPF              Decimal  @db.Decimal(10, 2)
+
+  // Relations
+  dossiers              Dossier[]
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([idFranceTravail])
+  @@index([userId])
+  @@map("candidats")
+}
+
+// Modèle CentreFormation
+model CentreFormation {
+  id                String   @id @default(cuid())
+  denomination      String
+  siret             String   @unique
+  adresse           String
+  codePostal        String
+  ville             String
+  region            Region
+
+  // Contact
+  nomContact        String?
+  emailContact      String?
+  telephoneContact  String?
+
+  // Certifications
+  numeroDeclaration String?  // Numéro de déclaration d'activité
+
+  // Relations
+  formations        Formation[]
+  devis             Devis[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([region])
+  @@map("centres_formation")
+}
+
+// Modèle Formation
+model Formation {
+  id                      String   @id @default(cuid())
+  centreFormationId       String
+  centreFormation         CentreFormation @relation(fields: [centreFormationId], references: [id])
+
+  // Informations formation
+  intitule                String
+  description             String   @db.Text
+  codeRNCPCible           String?  // Ex: RNCP38565
+  niveauRNCP              Int?     // 1 à 8
+
+  // Détails pédagogiques
+  dureeHeures             Int      // Durée en heures
+  modalites               String   // Présentiel, Distanciel, Hybride
+
+  // Modules
+  modules                 Json     // Tableau de modules avec durée
+
+  // Certification
+  certificationObtenue    String?
+
+  // Coûts
+  coutPedagogique         Decimal  @db.Decimal(10, 2)
+  coutTotal               Decimal  @db.Decimal(10, 2)
+
+  // Stages
+  stageEnEntreprise       Boolean  @default(false)
+  dureeStageJours         Int?
+
+  // Relations
+  dossiers                Dossier[]
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  @@index([centreFormationId])
+  @@map("formations")
+}
+
+// Modèle Devis
+model Devis {
+  id                    String   @id @default(cuid())
+  numero                String   @unique
+  centreFormationId     String
+  centreFormation       CentreFormation @relation(fields: [centreFormationId], references: [id])
+
+  // Informations devis
+  intituleFormation     String
+  dateDebut             DateTime
+  dateFin               DateTime
+  dureeHeures           Int
+
+  // Modules détaillés
+  modules               Json     // Tableau détaillé des modules
+
+  // Coûts
+  coutPedagogique       Decimal  @db.Decimal(10, 2)
+  repasInclus           Boolean  @default(false)
+  deplacementsInclus    Boolean  @default(false)
+  materielFourni        Boolean  @default(false)
+  coutTotal             Decimal  @db.Decimal(10, 2)
+
+  // Dates administratives
+  dateCreation          DateTime @default(now())
+  dateExpiration        DateTime
+
+  // Validation
+  valideParCandidat     Boolean  @default(false)
+  dateValidation        DateTime?
+  visiblePrestappli     Boolean  @default(false)
+
+  // Relations
+  dossier               Dossier?
+
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([numero])
+  @@index([centreFormationId])
+  @@map("devis")
+}
+
+// Modèle principal Dossier
+model Dossier {
+  id                        String   @id @default(cuid())
+  numero                    String   @unique // Généré automatiquement
+
+  // Relations principales
+  candidatId                String
+  candidat                  Candidat @relation(fields: [candidatId], references: [id])
+
+  consultantId              String
+  consultant                User     @relation("ConsultantDossiers", fields: [consultantId], references: [id])
+
+  formationId               String?
+  formation                 Formation? @relation(fields: [formationId], references: [id])
+
+  devisId                   String?  @unique
+  devis                     Devis?   @relation(fields: [devisId], references: [id])
+
+  // Statut et workflow
+  statut                    StatutDossier @default(BROUILLON)
+  dateCreation              DateTime @default(now())
+  dateJ21                   DateTime? // Deadline critique J-21
+  dateTransmission          DateTime?
+  dateReponseGestionnaire   DateTime?
+
+  // Projet professionnel (PSP)
+  metierCible               String?
+  codeROMECible             String?
+  projetProfessionnel       String   @db.Text
+  justificationFormation    String   @db.Text
+
+  // Validation du projet
+  etapesValidation          Json     // Détail des étapes (BMO, enquête métier, etc.)
+  justificationCentreFormation String @db.Text
+
+  // Analyse CPF et AIF
+  soldeCPF                  Decimal  @db.Decimal(10, 2)
+  coutFormation             Decimal  @db.Decimal(10, 2)
+  ecartFinancement          Decimal  @db.Decimal(10, 2)
+  abondementOPCO            Decimal? @db.Decimal(10, 2)
+  montantAIFDemande         Decimal  @db.Decimal(10, 2)
+
+  // Argumentaire AIF
+  motifAIF                  MotifAIF
+  argumentaireAIF           String   @db.Text
+
+  // Rejet
+  rejete                    Boolean  @default(false)
+  dateRejet                 DateTime?
+  motifRejet                TypeRejet?
+  detailRejet               String?  @db.Text
+
+  // Relations
+  checkpoints               Checkpoint[]
+  documents                 Document[]
+  checklistItems            ChecklistItem[]
+  historiqueStatuts         HistoriqueStatut[]
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@index([candidatId])
+  @@index([consultantId])
+  @@index([statut])
+  @@index([dateJ21])
+  @@map("dossiers")
+}
+
+// Modèle Checkpoint - Étapes du workflow
+model Checkpoint {
+  id              String   @id @default(cuid())
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  type            CheckpointType
+  ordre           Int      // Ordre dans le workflow (1 à 8)
+  titre           String
+  description     String   @db.Text
+
+  // Dates
+  dateEcheance    DateTime
+  dateCompletion  DateTime?
+
+  // Statut
+  complete        Boolean  @default(false)
+  conforme        Boolean? // true = conforme, false = non conforme, null = pas encore évalué
+
+  // Détails
+  resultats       String?  @db.Text
+  actions         String?  @db.Text // Actions correctives si non conforme
+
+  // Alerte
+  enRetard        Boolean  @default(false)
+  joursRestants   Int?     // Calculé
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([type])
+  @@map("checkpoints")
+}
+
+// Modèle ChecklistItem - Items de la checklist 25 points
+model ChecklistItem {
+  id              String   @id @default(cuid())
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  numero          Int      // 1 à 25
+  section         String   // IDENTITE, FORMATION, PROJET, DOCUMENTS, COHERENCE
+  titre           String
+  description     String   @db.Text
+
+  // Validation
+  valide          Boolean  @default(false)
+  dateValidation  DateTime?
+
+  // Détails
+  causeErreur     String?  @db.Text
+  actionCorrective String? @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([dossierId, numero])
+  @@index([dossierId])
+  @@map("checklist_items")
+}
+
+// Modèle Document - Documents du dossier
+model Document {
+  id              String   @id @default(cuid())
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  type            String   // FICHE_INSTRUCTION, DEMANDE_GESTION, DEVIS, JUSTIFICATIF_ADRESSE, PIECE_IDENTITE, etc.
+  nom             String
+  fichierUrl      String   // URL ou chemin du fichier
+  mimeType        String
+  taille          Int      // en bytes
+
+  // Validation
+  valide          Boolean  @default(false)
+  signe           Boolean  @default(false)
+  formatPDF       Boolean  @default(false)
+
+  uploadePar      String?  // ID de l'utilisateur
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([dossierId])
+  @@index([type])
+  @@map("documents")
+}
+
+// Modèle HistoriqueStatut - Traçabilité des changements de statut
+model HistoriqueStatut {
+  id              String   @id @default(cuid())
+  dossierId       String
+  dossier         Dossier  @relation(fields: [dossierId], references: [id], onDelete: Cascade)
+
+  ancienStatut    StatutDossier?
+  nouveauStatut   StatutDossier
+
+  commentaire     String?  @db.Text
+  modifiePar      String   // ID de l'utilisateur
+
+  createdAt       DateTime @default(now())
+
+  @@index([dossierId])
+  @@index([createdAt])
+  @@map("historique_statuts")
+}
+
+// Modèle Notification - Notifications pour les utilisateurs
+model Notification {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            String   // ALERTE_DEADLINE, VALIDATION_REQUISE, REPONSE_GESTIONNAIRE, etc.
+  titre           String
+  message         String   @db.Text
+
+  // État
+  lue             Boolean  @default(false)
+  dateLecture     DateTime?
+
+  // Liens
+  dossierId       String?  // Lien vers un dossier si applicable
+  lienAction      String?  // URL vers l'action à effectuer
+
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([lue])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// Modèle KPI - Indicateurs de performance
+model KPI {
+  id                        String   @id @default(cuid())
+
+  // Période
+  mois                      Int      // 1-12
+  annee                     Int
+  region                    Region
+
+  // Métriques
+  nombreDossiers            Int
+  nombreDossiersEnCours     Int
+  nombreDossiersAcceptes    Int
+  nombreDossiersRejetes     Int
+  nombreDemandesComplement  Int
+
+  // Délais (en jours)
+  delaiMoyenMontage         Float    // en minutes
+  delaiMoyenTransmission    Float    // en jours
+  delaiMoyenGestionnaire    Float    // en jours
+
+  // Taux (en pourcentage)
+  tauxRejet                 Float
+  tauxAcceptationPremiere   Float
+  tauxUrgence               Float    // % dossiers < 10j avant J-21
+
+  // Causes de rejet
+  rejetsParType             Json     // Répartition par type de rejet
+
+  // Secteurs de formation
+  formationsParSecteur      Json     // Répartition par secteur
+
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@unique([mois, annee, region])
+  @@index([region])
+  @@index([annee, mois])
+  @@map("kpis")
+}
