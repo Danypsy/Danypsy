@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroids - Style Atari 2600</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <div id="title-screen">
+            <h1>ASTEROIDS</h1>
+            <p class="subtitle">STYLE ATARI 2600</p>
+            <div id="controls-info">
+                <p>CONTRÔLES :</p>
+                <p>↑ : Propulsion</p>
+                <p>← → : Rotation</p>
+                <p>ESPACE : Tirer</p>
+                <p>H : Hyperspace</p>
+            </div>
+            <button id="start-btn">COMMENCER</button>
+        </div>
+        
+        <canvas id="game-canvas" width="800" height="600"></canvas>
+        
+        <div id="hud">
+            <div id="score-display">SCORE: <span id="score">0</span></div>
+            <div id="lives-display">VIES: <span id="lives">3</span></div>
+            <div id="level-display">NIVEAU: <span id="level">1</span></div>
+        </div>
+        
+        <div id="game-over-screen" class="hidden">
+            <h2>GAME OVER</h2>
+            <p id="final-score">SCORE: 0</p>
+            <button id="restart-btn">RECOMMENCER</button>
+        </div>
+        
+        <div id="pause-screen" class="hidden">
+            <h2>PAUSE</h2>
+            <button id="resume-btn">CONTINUER</button>
+        </div>
+    </div>
+    
+    <audio id="thrust-sound" src="sounds/thrust.wav" preload="auto"></audio>
+    <audio id="shoot-sound" src="sounds/shoot.wav" preload="auto"></audio>
+    <audio id="explosion-sound" src="sounds/explosion.wav" preload="auto"></audio>
+    <audio id="large-explosion-sound" src="sounds/large_explosion.wav" preload="auto"></audio>
+    <audio id="hyperspace-sound" src="sounds/hyperspace.wav" preload="auto"></audio>
+    
+    <script src="js/utils.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

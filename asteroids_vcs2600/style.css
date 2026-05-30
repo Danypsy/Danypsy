@@ -1,0 +1,153 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+}
+
+#game-canvas {
+    background-color: #000;
+    display: block;
+    border: 4px solid #444;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+#title-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#title-screen h1 {
+    font-size: 4rem;
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #0ff;
+    margin-bottom: 10px;
+    letter-spacing: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #888;
+    margin-bottom: 40px;
+    letter-spacing: 0.3rem;
+}
+
+#controls-info {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    border: 2px solid #444;
+    margin-bottom: 30px;
+}
+
+#controls-info p {
+    margin: 5px 0;
+    font-size: 1rem;
+}
+
+button {
+    background: #333;
+    color: #0ff;
+    border: 2px solid #0ff;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+}
+
+button:hover {
+    background: #0ff;
+    color: #000;
+    box-shadow: 0 0 20px #0ff;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#hud {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 1rem;
+    color: #0ff;
+    text-shadow: 0 0 5px #0ff;
+    z-index: 10;
+}
+
+#game-over-screen,
+#pause-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+#game-over-screen h2,
+#pause-screen h2 {
+    font-size: 3rem;
+    color: #f00;
+    text-shadow: 0 0 10px #f00;
+    margin-bottom: 20px;
+}
+
+#final-score {
+    font-size: 1.5rem;
+    color: #0ff;
+    margin-bottom: 30px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Atari 2600 color palette approximation */
+:root {
+    --atari-black: #000000;
+    --atari-white: #ffffff;
+    --atari-cyan: #00ffff;
+    --atari-magenta: #ff00ff;
+    --atari-yellow: #ffff00;
+    --atari-green: #00ff00;
+    --atari-red: #ff0000;
+    --atari-blue: #0000ff;
+    --atari-orange: #ff8800;
+}
