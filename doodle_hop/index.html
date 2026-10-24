@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Doodle Hop</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="desk">
+    <section id="sheet" aria-label="Doodle Hop">
+      <canvas id="game" width="400" height="680"></canvas>
+
+      <div id="hud" class="hidden">
+        <button id="btn-mute" type="button" aria-pressed="false">Son</button>
+        <button id="btn-pause" type="button" aria-label="Pause">II</button>
+      </div>
+
+      <button id="btn-shoot" class="hidden" type="button" aria-label="Tirer">Tirer</button>
+
+      <div id="screen-menu">
+        <p class="eyebrow">un cahier, des plateformes</p>
+        <h1>Doodle Hop</h1>
+        <p class="lede">Saute sans t'arrêter. Vise les plateformes, évite les bestioles.</p>
+        <ul class="help">
+          <li><kbd>←</kbd> <kbd>→</kbd> ou le doigt pour se déplacer</li>
+          <li><kbd>Espace</kbd> pour tirer vers le haut</li>
+          <li>Vert stable, bleu mobile, marron cassant</li>
+          <li>Blanc fragile, ressort rouge, jetpack et hélice</li>
+        </ul>
+        <button id="btn-play" type="button">Jouer</button>
+        <p class="best">Record <strong id="menu-best">0</strong></p>
+      </div>
+
+      <div id="screen-pause" class="hidden">
+        <div class="card">
+          <h2>Pause</h2>
+          <button id="btn-resume" type="button">Continuer</button>
+          <button id="btn-retry" class="ghost" type="button">Recommencer</button>
+        </div>
+      </div>
+
+      <div id="screen-over" class="hidden">
+        <div class="card">
+          <h2>Oups</h2>
+          <p id="over-msg">Tu es tombé du cahier.</p>
+          <p class="final">Score <strong id="over-score">0</strong></p>
+          <p id="over-record" class="record hidden">Nouveau record</p>
+          <p class="best">Record <strong id="over-best">0</strong></p>
+          <button id="btn-again" type="button">Recommencer</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="js/physics.js"></script>
+  <script src="js/draw.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
