@@ -1,0 +1,251 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 255, 255, 0.45), transparent 28%),
+    linear-gradient(160deg, #d7efc4 0%, #8fbf73 55%, #6aa25a 100%);
+  color: #243038;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  user-select: none;
+  overscroll-behavior: none;
+}
+
+button,
+kbd {
+  font-family: inherit;
+}
+
+#desk {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+#sheet {
+  position: relative;
+  aspect-ratio: 400 / 680;
+  height: min(680px, calc(100dvh - 24px));
+  width: auto;
+  max-width: calc(100vw - 20px);
+  background: #f7f2e6;
+  border-radius: 14px;
+  box-shadow:
+    0 18px 50px rgba(36, 64, 28, 0.28),
+    0 2px 0 rgba(255, 255, 255, 0.6) inset;
+  overflow: hidden;
+}
+
+#game {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+#hud {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+#hud button,
+#btn-shoot,
+.card button,
+#btn-play {
+  pointer-events: auto;
+  border: 2px solid #243038;
+  background: #fffdf8;
+  color: #243038;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+#hud button {
+  min-width: 74px;
+}
+
+#btn-shoot {
+  position: absolute;
+  z-index: 20;
+  right: 14px;
+  bottom: 16px;
+  width: 86px;
+  height: 86px;
+  font-size: 16px;
+  border-radius: 50%;
+  background: #243038;
+  color: #f7f2e6;
+  font-size: 15px;
+  box-shadow: 0 8px 0 #11181c;
+}
+
+#btn-shoot:active,
+#btn-play:active,
+.card button:active {
+  transform: translateY(2px);
+}
+
+#screen-menu,
+#screen-pause,
+#screen-over {
+  position: absolute;
+  inset: 0;
+}
+
+#screen-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 7% 8% 0;
+  text-align: center;
+  background: linear-gradient(#f7f2e6f2 0%, #f7f2e6e6 42%, rgba(247, 242, 230, 0) 78%);
+  pointer-events: none;
+}
+
+#screen-menu button,
+#screen-menu .best {
+  pointer-events: auto;
+}
+
+.eyebrow {
+  margin: 0;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  color: #5d6b73;
+}
+
+h1 {
+  margin: 4px 0 8px;
+  font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", sans-serif;
+  font-size: clamp(40px, 8vw, 58px);
+  line-height: 0.9;
+  color: #1f8a55;
+  text-shadow: 3px 3px 0 #d7f5e4;
+}
+
+.lede {
+  margin: 0 0 12px;
+  max-width: 30ch;
+  font-size: 15px;
+}
+
+.help {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+kbd {
+  display: inline-block;
+  border: 1px solid #243038;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: 0 5px;
+  background: #fff;
+  font-size: 12px;
+}
+
+#btn-play,
+.card button {
+  background: #1f8a55;
+  color: #f4fff8;
+  border-color: #146b40;
+  font-size: 18px;
+  padding: 12px 28px;
+  box-shadow: 0 5px 0 #146b40;
+}
+
+.card button.ghost {
+  background: #fffdf8;
+  color: #243038;
+  border-color: #243038;
+  box-shadow: 0 5px 0 #c9c1b2;
+}
+
+.best {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #415058;
+}
+
+#screen-pause,
+#screen-over {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(247, 242, 230, 0.72);
+}
+
+.card {
+  width: min(280px, 84%);
+  background: #fffdf8;
+  border: 3px solid #243038;
+  border-radius: 18px;
+  padding: 18px 16px 16px;
+  text-align: center;
+  box-shadow: 6px 6px 0 rgba(36, 48, 56, 0.15);
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  font-family: "Comic Sans MS", "Chalkboard SE", "Trebuchet MS", sans-serif;
+  font-size: 36px;
+}
+
+.card p {
+  margin: 6px 0;
+}
+
+.final {
+  font-size: 22px;
+}
+
+.record {
+  color: #c2410c;
+  font-weight: 800;
+}
+
+.card button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+button:focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .help {
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 46px;
+  }
+}
