@@ -1,0 +1,7 @@
+# Generated Atari 2600 artifacts — assemble with DASM, never commit a placeholder ROM.
+asteroids_2600_asm/*.bin
+asteroids_2600_asm/*.sym
+asteroids_2600_asm/*.lst
+asteroids_2600_asm/*.err
+__pycache__/
+*.pyc

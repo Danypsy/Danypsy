@@ -1,0 +1,10 @@
+# Allowed non-dot entries at the repository root.
+# Danypsy/Danypsy is a GitHub profile repository. New top-level
+# projects are not allowed here: open a separate repository, or
+# ask Dany to add the name to this list after an explicit approval.
+README.md
+.gitignore
+asteroids_vcs2600
+asteroids_2600_asm
+scripts
+tests
