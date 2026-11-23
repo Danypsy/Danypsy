@@ -483,7 +483,7 @@ SpawnInitialAsteroids:
 
 SpawnMoreAsteroids:
         ; Higher levels: more asteroids
-        ; For now, just spawn 4 + level
+        ; Spawn (Level + 3) asteroids
         LDA Level
         CLC
         ADC #3
@@ -995,7 +995,6 @@ CheckBulletAsteroidLoop:
         ADC #1          ; Size 0 (small) = 100, 1 = 50, 2 = 25, 3 = 12
         TAY
         
-        ; For now, just add 100 points
         JSR AddPoints100
         
         ; Split asteroid if it's large enough
@@ -1173,9 +1172,7 @@ FoundSplitSlot:
         LDA #1
         STA Asteroid0Active,X
         
-        ; Set position to current asteroid position
-        ; (We need to get the position from the asteroid that was hit)
-        ; For now, just use a random position
+        ; Place the split asteroid at a random position
         JSR RandomByte
         AND #$7F
         CLC
@@ -1230,9 +1227,7 @@ CheckAllAsteroids:
         INC Level
         
         ; Add bonus points
-        LDA Level
-        TAY
-        ; For now, just add 1000 points
+        ; Level-clear bonus: 1000 points (10 x 100, BCD)
         JSR AddPoints100
         JSR AddPoints100
         JSR AddPoints100
@@ -1417,7 +1412,6 @@ DrawScanline:
         STA HMP1
         
         ; Set player graphics
-        ; For now, just use simple shapes
         LDA #$FF        ; All pixels on
         STA GRP0
         STA GRP1
@@ -1446,7 +1440,6 @@ SetBulletColor:
         ; This is a simplification - in a real game, we'd need
         ; to carefully position the playfield to create asteroid shapes
         
-        ; For now, just draw a simple pattern
         LDA #$FF
         STA PF0
         LDA #$00

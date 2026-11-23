@@ -283,8 +283,8 @@ class Game {
     destroyAsteroid(index) {
         const asteroid = this.asteroids[index];
         
-        // Ajouter des points en fonction de la taille
-        const points = Math.floor(100 / asteroid.splitCount);
+        // Ajouter des points en fonction de la taille (jamais Infinity)
+        const points = AsteroidsUtils.pointsForAsteroidSize(asteroid.size);
         this.score += points;
         
         // Créer une explosion

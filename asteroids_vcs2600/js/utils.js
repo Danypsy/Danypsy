@@ -219,6 +219,19 @@ function clamp(value, min, max) {
 }
 
 // Export des fonctions pour les autres modules
+
+// Score by asteroid size. Never divide by splitCount (it starts at 0 and
+// produced Infinity). Classic Asteroids: larger rocks are worth less.
+function pointsForAsteroidSize(size) {
+    const n = Number(size);
+    if (!Number.isFinite(n) || n <= 0) {
+        return 0;
+    }
+    if (n > 60) return 20;
+    if (n > 40) return 50;
+    return 100;
+}
+
 window.AsteroidsUtils = {
     GAME_CONSTANTS,
     randomRange,
@@ -237,5 +250,6 @@ window.AsteroidsUtils = {
     drawAtariText,
     drawParticle,
     wrapAround,
-    clamp
+    clamp,
+    pointsForAsteroidSize
 };
