@@ -1,42 +1,19 @@
 @echo off
-REM ============================================
-REM BUILD BATCH FILE FOR ASTEROIDS (ATARI 2600)
-REM ============================================
+REM Build Asteroids for Atari 2600 with DASM.
+cd /d "%~dp0"
 
-REM Check if DASM is available
 where dasm >nul 2>&1
-if %ERRORLEVEL% equ 0 (
-    echo Using DASM assembler...
-    dasm asteroids.asm -f3 -oasteroids.bin
-) else (
-    echo DASM not found. Trying alternative methods...
-    
-    REM Check if Python and py65 are available
-    where python >nul 2>&1
-    if %ERRORLEVEL% equ 0 (
-        python -m py65.disassembler.dasm asteroids.asm -o asteroids.bin
-        if %ERRORLEVEL% equ 0 (
-            echo Built with py65
-            goto SUCCESS
-        )
-    )
-    
-    echo Error: No assembler found!
-    echo Please install DASM or py65 to assemble the ROM.
-    echo.
-    echo DASM: https://dasm-assembler.github.io/
-    echo py65: https://github.com/mnaberez/py65
-    goto END
+if %ERRORLEVEL% neq 0 (
+    echo Error: DASM is not installed.
+    echo DASM is the only supported assembler for this source.
+    echo Install: https://dasm-assembler.github.io/
+    exit /b 1
 )
 
-:SUCCESS
-echo.
-echo ROM built successfully!
-echo File: asteroids.bin (4K)
-echo.
-echo To run the ROM:
-echo 1. Copy asteroids.bin to your emulator's ROM directory
-echo 2. Load it in Stella, RetroArch, or Javatari
+dasm asteroids.asm -f3 -oasteroids.bin
+if %ERRORLEVEL% neq 0 exit /b 1
 
-:END
-pause
+echo ROM built: asteroids.bin
+for %%F in (asteroids.bin) do echo Size: %%~zF bytes
+echo Atari 2600 cartridge limit is 4096 bytes.
+echo Run with: stella asteroids.bin
