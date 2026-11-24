@@ -1,3 +1,4 @@
+	processor 6502
         ; ============================================
         ; ASTEROIDS FOR ATARI 2600
         ; 6502 Assembly - VCS Style
@@ -90,6 +91,7 @@ SWACNT  = $280          ; Switch Control
 SWCHA   = $280          ; Joystick 0
 SWCHB   = $282          ; Joystick 1
 INTIM   = $284          ; Timer Output
+TIM64T  = $294          ; Timer (64 clock intervals)
 TIMINT  = $285          ; Timer Set
 
         ; ============================================
@@ -722,12 +724,12 @@ DoneLimit:
 ; ============================================
 
 ThrustXTable:
-        .byte 0, 1, 1, 1, 0, -1, -1, -1
-        .byte 0, 1, 1, 1, 0, -1, -1, -1
+        DC.B 0, 1, 1, 1, 0, -1, -1, -1
+        DC.B 0, 1, 1, 1, 0, -1, -1, -1
 
 ThrustYTable:
-        .byte -1, -1, 0, 1, 1, 1, 0, -1
-        .byte -1, -1, 0, 1, 1, 1, 0, -1
+        DC.B -1, -1, 0, 1, 1, 1, 0, -1
+        DC.B -1, -1, 0, 1, 1, 1, 0, -1
 
 ; ============================================
 ; UPDATE BULLET
@@ -825,12 +827,12 @@ BulletAlreadyActive:
 ; ============================================
 
 BulletXTable:
-        .byte 0, 2, 2, 2, 0, -2, -2, -2
-        .byte 0, 2, 2, 2, 0, -2, -2, -2
+        DC.B 0, 2, 2, 2, 0, -2, -2, -2
+        DC.B 0, 2, 2, 2, 0, -2, -2, -2
 
 BulletYTable:
-        .byte -2, -2, 0, 2, 2, 2, 0, -2
-        .byte -2, -2, 0, 2, 2, 2, 0, -2
+        DC.B -2, -2, 0, 2, 2, 2, 0, -2
+        DC.B -2, -2, 0, 2, 2, 2, 0, -2
 
 ; ============================================
 ; UPDATE ASTEROIDS
@@ -1465,13 +1467,8 @@ SetBulletColor:
 
         ORG $FFFA
 
-        .word Reset     ; NMI
-        .word Reset     ; RESET
-        .word Reset     ; IRQ
+        DC.W Reset     ; NMI
+        DC.W Reset     ; RESET
+        DC.W Reset     ; IRQ
 
 ; ============================================
-; ROM PADDING
-; ============================================
-
-        ORG $FFFF
-        .byte $FF       ; Padding
